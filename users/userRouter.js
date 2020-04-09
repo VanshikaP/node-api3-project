@@ -6,7 +6,7 @@ const Post = require('../posts/postDb.js');
 const router = express.Router();
 
 router.use((req, res, next) => {
-  console.log('Inside User Router')
+  console.log('Inside User Router');
   next();
 })
 
@@ -14,14 +14,14 @@ router.post('/', validateUser, (req, res) => {
   // do your magic!
   Users.insert(req.body)
     .then(user => {
-      res.status(200).json(user)
+      res.status(200).json(user);
     })
     .catch(err => {
       console.log(err);
       res.status(500).json({
         message: 'Error adding the user'
-      })
-    })
+      });
+    });
 });
 
 router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
@@ -34,8 +34,8 @@ router.post('/:id/posts', validateUserId, validatePost, (req, res) => {
       console.log(err);
       res.status(500).json({
         message: 'Error adding the post'
-      })
-    })
+      });
+    });
 });
 
 router.get('/', (req, res) => {
@@ -47,8 +47,8 @@ router.get('/', (req, res) => {
       console.log(err);
       res.status(500).json({
         message: 'Error retreiving the users'
-      })
-    })
+      });
+    });
 });
 
 router.get('/:id', validateUserId, (req, res) => {
@@ -61,45 +61,46 @@ router.get('/:id/posts', validateUserId, (req, res) => {
   Users.getUserPosts(req.user.id)
     .then(posts => {
       if (posts) {
-        res.status(200).json(posts)
+        res.status(200).json(posts);
       } else {
-        res.status(404).json({ message: 'No posts by this user'})
+        res.status(404).json({ message: 'No posts by this user'});
       }
     })
     .catch(err => {
       console.log(err);
       res.status(500).json({
         message: 'Error retreiving the posts'
-      })
-    })
+      });
+    });
 });
 
 router.delete('/:id', validateUserId, (req, res) => {
   // do your magic!
   Users.remove(req.user.id)
     .then(() => {
-      res.status(200).json(req.user)
+      res.status(200).json(req.user);
     })
     .catch(err => {
       console.log(err);
       res.status(500).json({
         message: 'Error deleting the user'
-      })
-    })
+      });
+    });
 });
 
 router.put('/:id', validateUserId, validateUser, (req, res) => {
   // do your magic!
   Users.update(req.user.id, req.body)
-    .then(users => {
-      res.status(200).json(users)
+    .then(async function(){
+      const user = await Users.getById(req.params.id);
+      res.status(200).json(user);
     })
     .catch(err => {
       console.log(err);
       res.status(500).json({
         message: 'Error updating the user'
-      })
-    })
+      });
+    });
 });
 
 //custom middleware
@@ -116,25 +117,25 @@ function validateUserId(req, res, next) {
           req.user = user;
           next();
         } else {
-          res.status(404).json({ message: 'user id not found' })
+          res.status(404).json({ message: 'user id not found' });
         }
       })
       .catch(err => {
         console.log(err);
         res.status(500).json({
           message: 'Error retreiving the user'
-        })
-      })
+        });
+      });
   }
 }
 
 function validateUser(req, res, next) {
   // do your magic!
   if(!req.body || Object.keys(req.body).length == 0){
-    res.status(400).json({ message: 'missing user data' })
+    res.status(400).json({ message: 'missing user data' });
   } else {
     if (!req.body.hasOwnProperty('name')) {
-      res.status(400).json({ message: 'missing required name field'})
+      res.status(400).json({ message: 'missing required name field'});
     } else {
       next();
     }
@@ -144,10 +145,10 @@ function validateUser(req, res, next) {
 function validatePost(req, res, next) {
   // do your magic!
   if (!req.body || Object.keys(req.body).length == 0){
-    res.status(400).json({ message: 'missing post data' })
+    res.status(400).json({ message: 'missing post data' });
   } else {
     if (!req.body.hasOwnProperty('text')) {
-      res.status(400).json({ message: 'missing required text field'})
+      res.status(400).json({ message: 'missing required text field'});
     } else {
       next();
     }
